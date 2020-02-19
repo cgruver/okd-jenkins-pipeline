@@ -1,0 +1,195 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    description: "Build and Deploy Pipeline template for Spring Boot applications built using an ephemeral Jenkins Pipeline"
+    iconClass: icon-jenkins
+    openshift.io/display-name: "Spring Boot JVM Build & Deploy Pipeline for DEV"
+    template.openshift.io/bindable: "false"
+    tags: "java,spring-boot,jenkins-ci,jenkins"
+    version: "1.0"
+  name: quarkus-jvm-pipeline-dev
+objects:
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      annotations:
+        description: ${APP_NAME} Spring Boot JVM Docker Build Configuration
+      labels:
+        app: ${APP_NAME}
+      name: ${APP_NAME}-jvm-docker
+    spec:
+      failedBuildsHistoryLimit: 2
+      successfulBuildsHistoryLimit: 2
+      nodeSelector: null
+      output:
+        to:
+          kind: ImageStreamTag
+          name: ${APP_NAME}:latest
+      runPolicy: Serial
+      source:
+        type: Dockerfile
+        dockerfile: |-
+            FROM openshift/clg-ubi-minimal:8.1
+            LABEL git-commit=$GIT_COMMIT
+            COPY ./lib/* /deployments/lib/
+            COPY ./*-runner.jar /deployments/app.jar
+            EXPOSE 8080
+            USER 1001
+            ENTRYPOINT [ "/deployments/run-java.sh" ]
+      strategy:
+        dockerStrategy:
+          forcePull: true
+          from:
+            kind: ImageStreamTag
+            name: clg-ubi-minimal:8.1
+            namespace: openshift
+      triggers: []
+
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: "${APP_NAME}"
+      name: "${APP_NAME}-pipeline"
+    spec:
+      failedBuildsHistoryLimit": 2
+      successfulBuildsHistoryLimit: 2
+      nodeSelector: ~
+      runPolicy: Serial
+      source:
+        git:
+          ref: "${GIT_BRANCH}"
+          uri: "${GIT_REPOSITORY}"
+        type: Git
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfile: |-
+              pipeline {
+                agent any
+                stages{
+                  stage("Initialize") {
+                    steps {
+                      script {
+                        git url: "https://github.com/cgruver/okd-jenkins-pipeline", branch: "master"
+                        def jenkinsPipeline = load 'src/org/clg/pipeline/build.groovy'
+                        def params = ['pipelineCodeGitUrl': 'https://github.com/cgruver/okd-jenkins-pipeline', 'pipelineCodeGitBranch': 'master', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}]
+                        jenkinsPipeline.start(params)
+                      }
+                    }
+                  }
+                }
+              }
+        type: JenkinsPipeline
+      triggers: []
+
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: "${APP_NAME}"
+      name: "${APP_NAME}"
+    spec:
+      lookupPolicy:
+        local: false
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        description: ${APP_NAME} Spring Boot JVM Service.
+      labels:
+        app: ${APP_NAME}
+      name: ${APP_NAME}
+    spec:
+      ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+      selector:
+        deploymentConfig: ${APP_NAME}
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        description: ${APP_NAME} Spring Boot JVM Deployment Configuration.
+      labels:
+        app: ${APP_NAME}
+      name: ${APP_NAME}
+    spec:
+      replicas: 1
+      selector:
+        deploymentConfig: ${APP_NAME}
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          labels:
+            app: ${APP_NAME}
+            deploymentConfig: ${APP_NAME}
+          name: ${APP_NAME}
+        spec:
+          containers: 
+          - envFrom:
+            - configMapRef:
+                name: ${APP_NAME}-cm 
+            - secretRef:
+                name: ${APP_NAME}-sk
+            image: ${APP_NAME}
+            imagePullPolicy: Always
+            name: ${APP_NAME}
+            ports:
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          terminationGracePeriodSeconds: 75
+      triggers:
+      - imageChangeParams:
+          containerNames:
+          - ${APP_NAME}
+          from:
+            kind: ImageStreamTag
+            name: ${APP_NAME}:latest
+        type: ImageChange
+
+parameters:
+  -
+    description: "Name of the deployable application."
+    displayName: "Application Name"
+    name: APP_NAME
+    required: true
+  -
+    description: "Git repository for source code."
+    displayName: "Git Repo"
+    name: GIT_REPOSITORY
+    required: true
+  -
+    description: "Git repository branch to build app from"
+    displayName: "Git Branch"
+    name: GIT_BRANCH
+    required: true
+    value: master
+  -
+    description: "Name of the secret for Git credentials."
+    displayName: "Build Secret"
+    name: BUILD_SECRET
+    required: true
+    value: git-secret
+    
