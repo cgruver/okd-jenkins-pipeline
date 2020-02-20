@@ -100,8 +100,22 @@ objects:
                     <mirrorOf>*</mirrorOf>
                 </mirror>
             </mirrors>
+            <profiles>
+                <profile>
+                    <id>maven-nexus-repo</id>
+                    <repositories>
+                        <repository>
+                            <id>%%MVN_MIRROR_ID%%</id>
+                            <name>%%MVN_MIRROR_NAME%%</name>
+                            <url>%%MVN_MIRROR_URL%%</url>
+                        </repository>
+                    </repositories>
+                </profile>
+            </profiles>
+            <activeProfiles>
+                <activeProfile>maven-nexus-repo</activeProfile>
+            </activeProfiles>
         </settings>
-
 
   - apiVersion: v1
     kind: ImageStream
