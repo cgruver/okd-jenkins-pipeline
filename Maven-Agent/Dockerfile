@@ -21,4 +21,6 @@ RUN yum -y install java-1.8.0-openjdk-devel && \
     chown -R 1001:0 /maven-conf && \
     chmod -R g+rw /maven-conf
 
+VOLUME /maven/conf
+
 USER 1001

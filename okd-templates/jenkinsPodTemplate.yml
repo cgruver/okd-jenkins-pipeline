@@ -17,7 +17,12 @@ data:
         <label>maven</label>
         <serviceAccount>jenkins</serviceAccount>
         <nodeSelector></nodeSelector>
-        <volumes/>
+        <volumes>
+          <configMapVolume>
+            <mountPath>/maven/conf</mountPath>
+            <configMapName>maven-settings-xml</configMapName>
+          </configMapVolume>
+        </volumes>
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
             <name>jnlp</name>
