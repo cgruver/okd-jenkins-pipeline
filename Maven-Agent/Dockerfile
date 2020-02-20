@@ -6,8 +6,6 @@ ENV MAVEN_VERSION=3.6 \
     HOME=/home/build \
     MAVEN_OPTS='-Duser.home=/home/build'
 
-ADD ./files/settings.xml /maven-conf/settings.xml
-
 RUN yum -y install java-1.8.0-openjdk-devel && \
     yum -y update && \
     yum -y clean all && \
@@ -16,11 +14,12 @@ RUN yum -y install java-1.8.0-openjdk-devel && \
     ln -s /opt/apache-maven-3.6.3 /opt/maven && \
     rm -f /tmp/apache-maven-3.6.0-bin.tar.gz && \
     mkdir -p $HOME && \
+    mkdir -p /maven-conf && \
     chown -R 1001:0 $HOME && \
     chmod -R g+rw $HOME && \
     chown -R 1001:0 /maven-conf && \
     chmod -R g+rw /maven-conf
 
-VOLUME /maven/conf
+VOLUME /maven-conf
 
 USER 1001

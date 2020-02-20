@@ -85,6 +85,25 @@ objects:
       triggers: []
 
   - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: maven-settings-xml
+    data:
+      settings.xml: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <settings>
+            <mirrors>
+                <mirror>
+                    <id>%%MVN_MIRROR_ID%%</id>
+                    <name>%%MVN_MIRROR_NAME%%</name>
+                    <url>%%MVN_MIRROR_URL%%</url>
+                    <mirrorOf>*</mirrorOf>
+                </mirror>
+            </mirrors>
+        </settings>
+
+
+  - apiVersion: v1
     kind: ImageStream
     metadata:
       labels:

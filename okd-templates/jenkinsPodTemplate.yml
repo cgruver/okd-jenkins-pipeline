@@ -19,7 +19,7 @@ data:
         <nodeSelector></nodeSelector>
         <volumes>
           <configMapVolume>
-            <mountPath>/maven/conf</mountPath>
+            <mountPath>/maven-conf</mountPath>
             <configMapName>maven-settings-xml</configMapName>
           </configMapVolume>
         </volumes>
@@ -28,7 +28,7 @@ data:
             <name>jnlp</name>
             <image>docker-registry.default.svc:5000/openshift/maven-3-6-agent:v3.11</image>
             <privileged>false</privileged>
-            <alwaysPullImage>false</alwaysPullImage>
+            <alwaysPullImage>true</alwaysPullImage>
             <workingDir>/home/build</workingDir>
             <command></command>
             <args>${computer.jnlpmac} ${computer.name}</args>
