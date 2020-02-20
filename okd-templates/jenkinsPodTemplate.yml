@@ -55,13 +55,6 @@ data:
                 args:
                   - ${computer.jnlpmac}
                   - ${computer.name}
-                resources:
-                  requests:
-                    cpu: ${AGENT_CPU_REQUEST}
-                    memory: ${AGENT_MEM_REQUEST}
-                  limits:
-                    cpu: ${AGENT_CPU_LIMIT}
-                    memory: ${AGENT_MEM_LIMIT}
                 env:
                   - name: GIT_SOURCE_URL
                     value: ${GIT_SOURCE_URL}
