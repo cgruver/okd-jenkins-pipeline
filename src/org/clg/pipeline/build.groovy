@@ -14,7 +14,6 @@ def start(def params) {
     node("maven") {
       git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}"
       build(params)
-      }
     }
   }
 }

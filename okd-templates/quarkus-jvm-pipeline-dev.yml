@@ -74,7 +74,7 @@ objects:
                       script {
                         git url: "https://github.com/cgruver/okd-jenkins-pipeline", branch: "master"
                         def jenkinsPipeline = load 'src/org/clg/pipeline/build.groovy'
-                        def params = ['pipelineCodeGitUrl': 'https://github.com/cgruver/okd-jenkins-pipeline', 'pipelineCodeGitBranch': 'master', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}]
+                        def params = ['pipelineCodeGitUrl': 'https://github.com/cgruver/okd-jenkins-pipeline', 'pipelineCodeGitBranch': 'master', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}"]
                         jenkinsPipeline.start(params)
                       }
                     }
