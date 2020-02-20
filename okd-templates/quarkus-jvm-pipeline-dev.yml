@@ -192,6 +192,24 @@ objects:
             - containerPort: 8443
               name: https
               protocol: TCP
+            readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /
+                port: 8080
+                scheme: HTTP
+              periodSeconds: 20
+              successThreshold: 1
+              timeoutSeconds: 1
+            livenessProbe:
+              failureThreshold: 10
+              httpGet:
+                path: /
+                port: 8080
+                scheme: HTTP
+              periodSeconds: 20
+              successThreshold: 1
+              timeoutSeconds: 1
           terminationGracePeriodSeconds: 75
       triggers:
       - imageChangeParams:

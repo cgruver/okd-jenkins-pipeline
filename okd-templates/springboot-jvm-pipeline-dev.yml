@@ -9,7 +9,7 @@ metadata:
     template.openshift.io/bindable: "false"
     tags: "java,spring-boot,jenkins-ci,jenkins"
     version: "1.0"
-  name: quarkus-jvm-pipeline-dev
+  name: springboot-jvm-pipeline-dev
 objects:
   - apiVersion: v1
     kind: BuildConfig
@@ -31,10 +31,9 @@ objects:
       source:
         type: Dockerfile
         dockerfile: |-
-            FROM openshift/clg-ubi-minimal:8.1
+            FROM openshift/openjdk18-openshift:odfl
             LABEL git-commit=$GIT_COMMIT
-            COPY ./lib/* /deployments/lib/
-            COPY ./*-runner.jar /deployments/app.jar
+            COPY ./app.jar /deployments/app.jar
             EXPOSE 8080
             USER 1001
             ENTRYPOINT [ "/deployments/run-java.sh" ]
@@ -43,7 +42,7 @@ objects:
           forcePull: true
           from:
             kind: ImageStreamTag
-            name: clg-ubi-minimal:8.1
+            name: openjdk18-openshift:odfl
             namespace: openshift
       triggers: []
 
@@ -84,6 +83,39 @@ objects:
         type: JenkinsPipeline
       triggers: []
 
+- apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: maven-settings-xml
+    data:
+      settings.xml: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <settings>
+            <mirrors>
+                <mirror>
+                    <id>%%MVN_MIRROR_ID%%</id>
+                    <name>%%MVN_MIRROR_NAME%%</name>
+                    <url>%%MVN_MIRROR_URL%%</url>
+                    <mirrorOf>*</mirrorOf>
+                </mirror>
+            </mirrors>
+            <profiles>
+                <profile>
+                    <id>maven-nexus-repo</id>
+                    <repositories>
+                        <repository>
+                            <id>%%MVN_MIRROR_ID%%</id>
+                            <name>%%MVN_MIRROR_NAME%%</name>
+                            <url>%%MVN_MIRROR_URL%%</url>
+                        </repository>
+                    </repositories>
+                </profile>
+            </profiles>
+            <activeProfiles>
+                <activeProfile>maven-nexus-repo</activeProfile>
+            </activeProfiles>
+        </settings>
+        
   - apiVersion: v1
     kind: ImageStream
     metadata:
@@ -159,6 +191,26 @@ objects:
             - containerPort: 8443
               name: https
               protocol: TCP
+            livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /actuator/health
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 180
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+            readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /actuator/health
+                port: 8080
+                scheme: HTTP
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
           terminationGracePeriodSeconds: 75
       triggers:
       - imageChangeParams:
