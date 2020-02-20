@@ -83,7 +83,6 @@ def build(def params) {
           newIsLabels.metadata.labels["${labelPrefix}.author"] = 'Jenkins'
           newIsLabels.metadata.labels["${labelPrefix}.latest_version"] = appVersion
           openshift.apply(newIsLabels)
-          //openshift.tag("", "${params.appName}:latest")
           def dc  = openshift.selector("dc", "${params.appName}")
           dc.rollout().latest()
           dc.rollout().status()
