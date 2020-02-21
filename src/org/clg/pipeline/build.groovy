@@ -33,7 +33,7 @@ def build(def params) {
       }
 
       stage('Build From Source') {
-        sh "mvn -B -Dmaven.wagon.http.ssl.insecure=true -s /maven-conf/settings.xml -DfinalName=app package"
+        sh "mvn -B -Dmaven.wagon.http.ssl.insecure=true -s /maven-conf/settings.xml package"
       }
 
       stage("Process OpenShift Config") {
