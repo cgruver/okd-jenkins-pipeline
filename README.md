@@ -4,6 +4,8 @@
 
 Actually, it's not too bad at this point.  But, as you can see, there is not much documentation yet...  Just a lot of Groovy and YAML.
 
+### Very terse docs...  more to follow:
+
 If you have not cleaned up your local image cache in a while, do this.  __Note: This will delete all the local containers on your system. So don't do this on a system with running containers!!!__  If this is your local workstation, you may be amazed at the space that you free up.  ;-)
 
 ```
