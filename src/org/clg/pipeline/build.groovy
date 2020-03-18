@@ -76,13 +76,13 @@ def build(def params) {
           def bc = openshift.selector("bc/${params.appName}-jvm-docker")
           bc.startBuild("--from-dir='target'")
           bc.logs("-f")
-          def newIsLabels = openshift.selector("is", "${params.appName}").object()
-          newIsLabels.metadata.labels["${labelPrefix}.lastest_commit"] = commitVersion
-          newIsLabels.metadata.labels["${labelPrefix}.committer_name"] = env.GIT_COMMITTER_NAME
-          newIsLabels.metadata.labels["${labelPrefix}.committer_email"] = env.GIT_COMMITTER_EMAIL
-          newIsLabels.metadata.labels["${labelPrefix}.author"] = 'Jenkins'
-          newIsLabels.metadata.labels["${labelPrefix}.latest_version"] = appVersion
-          openshift.apply(newIsLabels)
+          //def newIsLabels = openshift.selector("is", "${params.appName}").object()
+          //newIsLabels.metadata.labels["${labelPrefix}.lastest_commit"] = commitVersion
+          //newIsLabels.metadata.labels["${labelPrefix}.committer_name"] = env.GIT_COMMITTER_NAME
+          //newIsLabels.metadata.labels["${labelPrefix}.committer_email"] = env.GIT_COMMITTER_EMAIL
+          //newIsLabels.metadata.labels["${labelPrefix}.author"] = 'Jenkins'
+          //newIsLabels.metadata.labels["${labelPrefix}.latest_version"] = appVersion
+          //openshift.apply(newIsLabels)
           def dc  = openshift.selector("dc", "${params.appName}")
           dc.rollout().latest()
           dc.rollout().status()
