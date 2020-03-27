@@ -71,9 +71,9 @@ objects:
                   stage("Initialize") {
                     steps {
                       script {
-                        git url: "https://github.com/cgruver/okd-jenkins-pipeline", branch: "stable"
+                        git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%"
                         def jenkinsPipeline = load 'src/org/clg/pipeline/build.groovy'
-                        def params = ['pipelineCodeGitUrl': 'https://github.com/cgruver/okd-jenkins-pipeline', 'pipelineCodeGitBranch': 'stable', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}"]
+                        def params = ['pipelineCodeGitUrl': '%%GIT_URL%%', 'pipelineCodeGitBranch': '%%GIT_BRANCH%%', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}"]
                         jenkinsPipeline.start(params)
                       }
                     }

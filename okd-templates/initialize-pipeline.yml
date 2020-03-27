@@ -32,7 +32,7 @@ objects:
                   stage("Initialize") {
                     steps {
                       script {
-                        git url: "https://github.com/cgruver/okd-jenkins-pipeline", branch: "stable"
+                        git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%"
                         def jenkinsPipeline = load 'src/org/clg/pipeline/initialize.groovy'
                         jenkinsPipeline.start()
                       }
