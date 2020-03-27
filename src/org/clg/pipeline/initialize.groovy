@@ -1,6 +1,6 @@
 package org.clg.pipeline
 
-def start(def params) {
+def start() {
 
   openshift.withCluster() {
     openshift.withProject() {
