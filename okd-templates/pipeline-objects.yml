@@ -2,12 +2,12 @@ apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   app: pipeline-objects
-  template: pipeline-objects-template
+  template: pipeline-objects
 metadata:
   annotations:
     description: |-
       Objects for Jenkins service, without persistent storage.
-  name: pipeline-objects-template
+  name: pipeline-objects
 objects:
 - apiVersion: v1
   kind: ConfigMap
