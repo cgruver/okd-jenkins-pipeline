@@ -113,20 +113,30 @@ Apply everything:
       oc apply -f ${i}
     done
 
-Create a test project:
+## Deploying Applications:
 
-```
-oc new-project pipeline-test
-```
+1. Create a test project:
 
-Deploy a Quarkus application:
+       oc new-project pipeline-test
 
-```
-oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=your-app-name -p GIT_REPOSITORY=https://you@your-git.org/path/to/your/quarkus-app.git -p BUILD_SECRET=your-creds -p GIT_BRANCH=your-branch | oc apply -n pipeline-test -f -
-```
+1. Install the pipeline:
 
-Deploy a Spring Boot application:
+       oc process openshift//initialize-pipeline-dev
+    
+    You will need to wait for Jenkins to fully start up for the first time.
 
-```
-oc process openshift//springboot-jvm-pipeline-dev -p APP_NAME=our-app-name -p GIT_REPOSITORY=https://you@your-git.org/path/to/your/spring-boot-app.git -p GIT_BRANCH=your-branch -p BUILD_SECRET=your-creds | oc apply -n pipeline-test -f -
-```
+1. Initialize your namespace with the config maps for maven-settings.xml and the maven agent pod template:
+
+       oc start-build initialize-pipeline --follow
+
+1. Create a secret in your namespace with your git credentials for the repository where your test project is located.  You can do this from the OpenShift console, or create a yaml file.
+
+Now, you are ready to create pipelines to build, package, and deploy Quarkus JVM or Spring Boot applications
+
+Deploy a Quarkus JVM pipeline:
+
+    oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=your-app-name -p GIT_REPOSITORY=https://you@your-git.org/path/to/your/quarkus-app.git -p BUILD_SECRET=your-creds -p GIT_BRANCH=your-branch | oc apply -n pipeline-test -f -
+
+Deploy a Spring Boot pipeline:
+
+    oc process openshift//springboot-jvm-pipeline-dev -p APP_NAME=our-app-name -p GIT_REPOSITORY=https://you@your-git.org/path/to/your/spring-boot-app.git -p GIT_BRANCH=your-branch -p BUILD_SECRET=your-creds | oc apply -n pipeline-test -f -
