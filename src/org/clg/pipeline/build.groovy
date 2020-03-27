@@ -2,14 +2,6 @@ package org.clg.pipeline
 
 def start(def params) {
 
-  openshift.withCluster() {
-    openshift.withProject() {
-      stage("Apply Maven Agent Pod Configs") {
-        openshift.raw("apply -f ./okd-templates/jenkinsPodTemplate.yml")
-      }
-    }
-  }
-
   stage("Launch Maven Agent") {
     node("maven") {
       git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}"

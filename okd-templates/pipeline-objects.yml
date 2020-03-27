@@ -1,0 +1,120 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  app: pipeline-objects
+  template: pipeline-objects-template
+metadata:
+  annotations:
+    description: |-
+      Objects for Jenkins service, without persistent storage.
+  name: pipeline-objects-template
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: ~
+    labels:
+      role: jenkins-slave
+    name: jenkins-maven-agent
+  data:
+    template1: |-
+        <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+          <inheritFrom></inheritFrom>
+          <podRetention>never</podRetention>
+          <name>maven</name>
+          <instanceCap>2147483647</instanceCap>
+          <idleMinutes>0</idleMinutes>
+          <label>maven</label>
+          <serviceAccount>jenkins</serviceAccount>
+          <nodeSelector></nodeSelector>
+          <volumes/>
+          <containers>
+            <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+              <name>jnlp</name>
+              <image>docker-registry.default.svc:5000/openshift/maven-3-6-agent:v3.11</image>
+              <privileged>false</privileged>
+              <alwaysPullImage>true</alwaysPullImage>
+              <workingDir>/home/build</workingDir>
+              <command></command>
+              <args>${computer.jnlpmac} ${computer.name}</args>
+              <ttyEnabled>false</ttyEnabled>
+              <resourceRequestCpu></resourceRequestCpu>
+              <resourceRequestMemory></resourceRequestMemory>
+              <resourceLimitCpu></resourceLimitCpu>
+              <resourceLimitMemory></resourceLimitMemory>
+              <envVars/>
+            </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+          </containers>
+          <envVars/>
+          <annotations/>
+          <imagePullSecrets/>
+          <nodeProperties/>
+          <yaml>
+            kind: Pod
+            apiVersion: v1
+            metadata:
+              labels:
+                custom-label: "maven"
+            spec:
+              serviceAccountName: jenkins
+              containers:
+                - name: jnlp
+                  image: docker-registry.default.svc:5000/openshift/maven-3-6-agent:v3.11
+                  workingDir: /home/build
+                  tty: false
+                  args:
+                    - ${computer.jnlpmac}
+                    - ${computer.name}
+                  env:
+                    - name: GIT_SOURCE_URL
+                      value: ${GIT_SOURCE_URL}
+                    - name: CLUSTER_APPS_DOMAIN
+                      value: ${CLUSTER_APPS_DOMAIN}
+                    - name: CLUSTER_LOCATION
+                      value: ${CLUSTER_LOCATION}
+                    - name: JENKINS_NAMESPACE
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: metadata.namespace
+                  volumeMounts:
+                    - mountPath: /maven-conf
+                      name: maven-settings-xml
+              volumes:
+                - name: maven-settings-xml
+                  configMap:
+                    name: maven-settings-xml
+          </yaml>
+        </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: maven-settings-xml
+  data:
+    settings.xml: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <settings>
+          <mirrors>
+              <mirror>
+                  <id>%%MVN_MIRROR_ID%%</id>
+                  <name>%%MVN_MIRROR_NAME%%</name>
+                  <url>%%MVN_MIRROR_URL%%</url>
+                  <mirrorOf>*</mirrorOf>
+              </mirror>
+          </mirrors>
+          <profiles>
+              <profile>
+                  <id>maven-nexus-repo</id>
+                  <repositories>
+                      <repository>
+                          <id>%%MVN_MIRROR_ID%%</id>
+                          <name>%%MVN_MIRROR_NAME%%</name>
+                          <url>%%MVN_MIRROR_URL%%</url>
+                      </repository>
+                  </repositories>
+              </profile>
+          </profiles>
+          <activeProfiles>
+              <activeProfile>maven-nexus-repo</activeProfile>
+          </activeProfiles>
+      </settings>
+
