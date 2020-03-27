@@ -49,7 +49,7 @@ __Note: Don't leave your pipeline dependent on this GitHub project.  You never k
     git clone https://your.git.url.org/okd-jenkins-pipeline.git
     cd okd-jenkins-pipeline
 
-Now we nee to set some environment variables:
+Now we need to set some environment variables:
 
 | | |
 |-|-|
