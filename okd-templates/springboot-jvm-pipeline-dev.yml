@@ -33,7 +33,7 @@ objects:
         dockerfile: |-
             FROM openshift/clg-ubi-minimal:8.1
             LABEL git-commit=$GIT_COMMIT
-            COPY ./*.jar /deployments/app.jar
+            COPY ./app.jar /deployments/app.jar
             EXPOSE 8080 8778 8443
             USER 1001
             ENTRYPOINT [ "/deployments/run-java.sh" ]
