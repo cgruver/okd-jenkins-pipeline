@@ -88,10 +88,10 @@ Create a temporary work space:
     cp okd-templates/* work/
     cd work
 
-Save a copy of the original `jenkins-ephemeral` template...  just in case you need to revert back.
+Save a copy of the original `jenkins-ephemeral` template...  just in case you need to revert back.  __Note on the `sed` command.  If you are not on a Mac OS, then remove the empty `""` after `sed -i`.  Mac OS uses the BSD syntax for `sed`.
 
     oc get template jenkins-ephemeral -n openshift -o yaml --export > jenkinsEphemeralOriginal.yml
-    sed -i "s|jenkins-ephemeral|jenkins-orig-ephemeral|g" ./jenkinsEphemeralOriginal.yml
+    sed -i "" "s|jenkins-ephemeral|jenkins-orig-ephemeral|g" ./jenkinsEphemeralOriginal.yml
     oc apply -f jenkinsEphemeralOriginal.yml -n openshift
     rm jenkinsEphemeralOriginal.yml
 
