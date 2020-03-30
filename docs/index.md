@@ -106,6 +106,10 @@ Patch the provided YAML files with your environment:
       sed -i "" "s|%%GIT_BRANCH%%|${GIT_BRANCH}|g" ./${i}
     done
 
+Switch to the openshift project so that the templates will be available to all namespaces:
+
+    oc project openshift
+
 Apply everything:
 
     for i in $(ls)
@@ -113,7 +117,7 @@ Apply everything:
       oc apply -f ${i}
     done
 
-## Deploying Applications:
+## Deploying Applications
 
 1. Create a test project:
 
@@ -121,8 +125,8 @@ Apply everything:
 
 1. Install the pipeline:
 
-       oc process openshift//initialize-pipeline-dev
-    
+       oc process openshift//initialize-pipeline-dev | oc apply -f -
+
     You will need to wait for Jenkins to fully start up for the first time.
 
 1. Initialize your namespace with the config maps for maven-settings.xml and the maven agent pod template:
