@@ -2,14 +2,6 @@ package org.clg.pipeline
 
 def start(def params) {
 
-  openshift.withCluster() {
-    openshift.withProject() {
-      stage("Apply Maven Agent Pod Configs") {
-        openshift.raw("apply -f ./okd-templates/jenkinsPodTemplate.yml")
-      }
-    }
-  }
-
   stage("Launch Maven Agent") {
     node("maven") {
       git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}"
@@ -69,20 +61,18 @@ def build(def params) {
         timeout(time:5, unit:'MINUTES'){
           def pom = readMavenPom file: "pom.xml"
           def appVersion = "${pom.version}"
-          def labelPrefix = "${pom.groupId}.${pom.artifactId}"
           def commitVersion = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
           def commitHash = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
           openshift.raw("set env bc/${params.appName}-jvm-docker GIT_REF=${commitHash} GIT_URL=${params.gitUrl} GIT_BRANCH=${params.gitBranch} GIT_COMMIT=${commitVersion}")
           def bc = openshift.selector("bc/${params.appName}-jvm-docker")
           bc.startBuild("--from-dir='target'")
           bc.logs("-f")
-          //def newIsLabels = openshift.selector("is", "${params.appName}").object()
-          //newIsLabels.metadata.labels["${labelPrefix}.lastest_commit"] = commitVersion
-          //newIsLabels.metadata.labels["${labelPrefix}.committer_name"] = env.GIT_COMMITTER_NAME
-          //newIsLabels.metadata.labels["${labelPrefix}.committer_email"] = env.GIT_COMMITTER_EMAIL
-          //newIsLabels.metadata.labels["${labelPrefix}.author"] = 'Jenkins'
-          //newIsLabels.metadata.labels["${labelPrefix}.latest_version"] = appVersion
-          //openshift.apply(newIsLabels)
+          def newIsLabels = openshift.selector("is", "${params.appName}").object()
+          newIsLabels.metadata.labels["lastest_commit"] = commitVersion
+          newIsLabels.metadata.labels["committer_name"] = env.GIT_COMMITTER_NAME
+          newIsLabels.metadata.labels["author"] = 'Jenkins'
+          newIsLabels.metadata.labels["latest_version"] = appVersion
+          openshift.apply(newIsLabels)
           def dc  = openshift.selector("dc", "${params.appName}")
           dc.rollout().latest()
           dc.rollout().status()

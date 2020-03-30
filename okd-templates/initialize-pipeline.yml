@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    description: "Initialization Pipeline template for Spring Boot and Quarkus applications built using an ephemeral Jenkins Pipeline"
+    iconClass: icon-jenkins
+    openshift.io/display-name: "Initialization for Jenkins Build & Deploy Pipeline for DEV"
+    template.openshift.io/bindable: "false"
+    tags: "java,spring-boot,quarkus,jenkins-ci,jenkins"
+    version: "1.0"
+  name: initialize-pipeline-dev
+objects:
+
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: "initialize-pipeline"
+      name: "initialize-pipeline"
+    spec:
+      failedBuildsHistoryLimit": 2
+      successfulBuildsHistoryLimit: 2
+      nodeSelector: ~
+      runPolicy: Serial
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfile: |-
+              pipeline {
+                agent any
+                stages{
+                  stage("Initialize") {
+                    steps {
+                      script {
+                        git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%"
+                        def jenkinsPipeline = load 'src/org/clg/pipeline/initialize.groovy'
+                        jenkinsPipeline.start()
+                      }
+                    }
+                  }
+                }
+              }
+        type: JenkinsPipeline
+      triggers: []
+    

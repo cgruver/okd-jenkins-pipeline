@@ -20,9 +20,7 @@ metadata:
     openshift.io/provider-display-name: Red Hat, Inc.
     openshift.io/support-url: https://access.redhat.com
     tags: instant-app,jenkins
-  creationTimestamp: null
   name: jenkins-ephemeral
-  selfLink: /apis/template.openshift.io/v1/namespaces/openshift/templates/jenkins-ephemeral
 objects:
 - apiVersion: v1
   kind: Route
@@ -122,82 +120,6 @@ objects:
         lastTriggeredImage: ""
       type: ImageChange
     - type: ConfigChange
-- apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    creationTimestamp: ~
-    labels:
-      role: jenkins-slave
-    name: jenkins-maven-agent
-  data:
-    template1: |-
-        <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-          <inheritFrom></inheritFrom>
-          <podRetention>never</podRetention>
-          <name>maven</name>
-          <instanceCap>2147483647</instanceCap>
-          <idleMinutes>0</idleMinutes>
-          <label>maven</label>
-          <serviceAccount>jenkins</serviceAccount>
-          <nodeSelector></nodeSelector>
-          <volumes/>
-          <containers>
-            <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-              <name>jnlp</name>
-              <image>docker-registry.default.svc:5000/openshift/maven-3-6-agent:v3.11</image>
-              <privileged>false</privileged>
-              <alwaysPullImage>true</alwaysPullImage>
-              <workingDir>/home/build</workingDir>
-              <command></command>
-              <args>${computer.jnlpmac} ${computer.name}</args>
-              <ttyEnabled>false</ttyEnabled>
-              <resourceRequestCpu></resourceRequestCpu>
-              <resourceRequestMemory></resourceRequestMemory>
-              <resourceLimitCpu></resourceLimitCpu>
-              <resourceLimitMemory></resourceLimitMemory>
-              <envVars/>
-            </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-          </containers>
-          <envVars/>
-          <annotations/>
-          <imagePullSecrets/>
-          <nodeProperties/>
-          <yaml>
-            kind: Pod
-            apiVersion: v1
-            metadata:
-              labels:
-                custom-label: "maven"
-            spec:
-              serviceAccountName: jenkins
-              containers:
-                - name: jnlp
-                  image: docker-registry.default.svc:5000/openshift/maven-3-6-agent:v3.11
-                  workingDir: /home/build
-                  tty: false
-                  args:
-                    - ${computer.jnlpmac}
-                    - ${computer.name}
-                  env:
-                    - name: GIT_SOURCE_URL
-                      value: ${GIT_SOURCE_URL}
-                    - name: CLUSTER_APPS_DOMAIN
-                      value: ${CLUSTER_APPS_DOMAIN}
-                    - name: CLUSTER_LOCATION
-                      value: ${CLUSTER_LOCATION}
-                    - name: JENKINS_NAMESPACE
-                      valueFrom:
-                        fieldRef:
-                          fieldPath: metadata.namespace
-                  volumeMounts:
-                    - mountPath: /maven-conf
-                      name: maven-settings-xml
-              volumes:
-                - name: maven-settings-xml
-                  configMap:
-                    name: maven-settings-xml
-          </yaml>
-        </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
 - apiVersion: v1
   kind: ServiceAccount
   metadata:

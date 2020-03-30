@@ -12,7 +12,7 @@ RUN yum -y install java-1.8.0-openjdk-devel && \
     wget https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -O /tmp/maven.tar.gz && \
     tar -xzf /tmp/maven.tar.gz -C /opt/ && \
     ln -s /opt/apache-maven-3.6.3 /opt/maven && \
-    rm -f /tmp/apache-maven-3.6.0-bin.tar.gz && \
+    rm -f /tmp/maven.tar.gz && \
     mkdir -p $HOME && \
     mkdir -p /maven-conf && \
     chown -R 1001:0 $HOME && \
