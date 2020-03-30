@@ -106,15 +106,11 @@ Patch the provided YAML files with your environment:
       sed -i "" "s|%%GIT_BRANCH%%|${GIT_BRANCH}|g" ./${i}
     done
 
-Switch to the openshift project so that the templates will be available to all namespaces:
-
-    oc project openshift
-
-Apply everything:
+Apply everything: (We're putting everything into the `openshift` namespace so it will be globally available.)
 
     for i in $(ls)
     do
-      oc apply -f ${i}
+      oc apply -f ${i} -n openshift
     done
 
 ## Deploying Applications
