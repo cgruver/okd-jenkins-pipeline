@@ -29,6 +29,7 @@ This project is composed of the following components:
     | initialize.groovy | This pipeline is run the first time a developer sets up their namespace for Jenkins builds.  It is also run by the developer anytime they need to consume changes to either the maven-settings.xml or the custom jenkins agent Pod Template |
     | build.groovy | This is the script that builds, packages, and deploys Quarkus JVM, or Spring Boot applications |
 
+1. __Note:__ The DeploymentConfigs in the two pipelines include an init-container that creates a Java keystore from the certificates located at: `/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt`  There is an environment variable set for the application container that passes custom JAVA_OPTS to take advantage of the Java keystore.  By setting this up, any self-signed certs that you add to your OpenShift cluster are automatically trusted by your applications.  This is useful for things like WebSphere MQ, or Hashicorp Vault where you want TLS communication channels.
 
 We're going to start by building a couple of container images.  So, If you have not cleaned up your local image cache in a while, do this.  
 
