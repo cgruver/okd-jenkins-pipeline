@@ -139,6 +139,32 @@ objects:
             deploymentConfig: ${APP_NAME}
           name: ${APP_NAME}
         spec:
+          initContainers:
+          - args:
+              - '-c'
+              - >-
+                csplit -z -f crt- $ca_bundle '/-----BEGIN CERTIFICATE-----/' '{*}'
+                && for file in crt-*; do keytool -import -noprompt -keystore
+                $truststore_jks -file $file -storepass changeit -alias
+                service-$file; done
+            command:
+              - /bin/bash
+            env:
+              - name: ca_bundle
+                value: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+              - name: truststore_jks
+                value: /var/run/secrets/java.io/keystores/truststore.jks
+              - name: password
+                value: changeit
+            image: 'docker-registry.default.svc:5000/openshift/clg-ubi-minimal:8.1'
+            imagePullPolicy: IfNotPresent
+            name: pem-to-truststore
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /var/run/secrets/java.io/keystores
+                name: keystore-volume
           containers: 
           - envFrom:
             - configMapRef:
@@ -158,6 +184,9 @@ objects:
             - containerPort: 8443
               name: https
               protocol: TCP
+            volumeMounts:
+            - mountPath: /var/run/secrets/java.io/keystores
+              name: keystore-volume
             readinessProbe:
               failureThreshold: 3
               httpGet:
@@ -177,6 +206,9 @@ objects:
               successThreshold: 1
               timeoutSeconds: 1
           terminationGracePeriodSeconds: 75
+          volumes:
+          - emptyDir: {}
+            name: keystore-volume
       triggers:
       - imageChangeParams:
           containerNames:
