@@ -78,8 +78,8 @@ Build the container images for this pipeline:
     docker build -t ${IMAGE_REGISTRY}/openshift/maven-3-6-agent:v3.11 .
     docker push ${IMAGE_REGISTRY}/openshift/maven-3-6-agent:v3.11
     cd ../Ubi-Minimal-Custom-Image
-    docker build -t ${IMAGE_REGISTRY}/openshift/clg-ubi-minimal:8.1 .
-    docker push ${IMAGE_REGISTRY}/openshift/clg-ubi-minimal:8.1
+    docker build -t ${IMAGE_REGISTRY}/openshift/jdk-ubi-minimal:8.1 .
+    docker push ${IMAGE_REGISTRY}/openshift/jdk-ubi-minimal:8.1
     cd ..
 
 Create a temporary work space:

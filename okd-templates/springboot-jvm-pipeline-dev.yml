@@ -31,7 +31,7 @@ objects:
       source:
         type: Dockerfile
         dockerfile: |-
-            FROM openshift/clg-ubi-minimal:8.1
+            FROM openshift/jdk-ubi-minimal:8.1
             LABEL git-commit=$GIT_COMMIT
             COPY ./app.jar /deployments/app.jar
             EXPOSE 8080 8778 8443
@@ -42,7 +42,7 @@ objects:
           forcePull: true
           from:
             kind: ImageStreamTag
-            name: clg-ubi-minimal:8.1
+            name: jdk-ubi-minimal:8.1
             namespace: openshift
       triggers: []
 
@@ -156,7 +156,7 @@ objects:
                 value: /var/run/secrets/java.io/keystores/truststore.jks
               - name: password
                 value: changeit
-            image: 'docker-registry.default.svc:5000/openshift/clg-ubi-minimal:8.1'
+            image: 'docker-registry.default.svc:5000/openshift/jdk-ubi-minimal:8.1'
             imagePullPolicy: IfNotPresent
             name: pem-to-truststore
             resources: {}
