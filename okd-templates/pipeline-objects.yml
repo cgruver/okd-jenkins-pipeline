@@ -65,6 +65,9 @@ objects:
                   args:
                     - ${computer.jnlpmac}
                     - ${computer.name}
+                  envFrom:
+                  - secretRef: 
+                      name: contrast-config-sk
                   env:
                     - name: GIT_SOURCE_URL
                       value: ${GIT_SOURCE_URL}
@@ -117,4 +120,16 @@ objects:
               <activeProfile>maven-nexus-repo</activeProfile>
           </activeProfiles>
       </settings>
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: contrast-config-sk
+  type: Opaque
+  data:
+    CONTRAST_MAVEN_USERNAME: %%CONTRAST_MAVEN_USERNAME%%
+    CONTRAST_MAVEN_APIKEY: %%CONTRAST_MAVEN_APIKEY%%
+    CONTRAST_MAVEN_SERVICEKEY: %%CONTRAST_MAVEN_SERVICEKEY%%
+    CONTRAST_MAVEN_TEAMSERVERURL: %%CONTRAST_MAVEN_TEAMSERVERURL%%
+    CONTRAST_MAVEN_ORGUUID: %%CONTRAST_MAVEN_ORGUUID%%
+
 
