@@ -33,7 +33,7 @@ def build(def params) {
         // We need to use profile, and run ITs via verify phase
         if (readFile('pom.xml').contains(contrast)) {
           phase = "verify"
-          profiles += contrast
+          profiles.add("contrast")
         }
          
         sh """mvn -B -Dmaven.wagon.http.ssl.insecure=true 
