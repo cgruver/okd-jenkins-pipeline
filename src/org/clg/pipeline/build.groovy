@@ -38,7 +38,7 @@ def build(def params) {
          
         sh """mvn -B -Dmaven.wagon.http.ssl.insecure=true 
                   -s /maven-conf/settings.xml 
-                  -P ${profiles.join[',']}"
+                  -P ${profiles.join(',')}"
                   -DappName=app ${phase}"""
       }
 
