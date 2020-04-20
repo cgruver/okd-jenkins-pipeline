@@ -25,7 +25,21 @@ def build(def params) {
       }
 
       stage('Build From Source') {
-        sh "mvn -B -Dmaven.wagon.http.ssl.insecure=true -s /maven-conf/settings.xml -P ocp,run-with-contrast -DappName=app verify"
+        def phase = "package"
+        def profiles = ["ocp"]
+        def contrast = "run-with-contrast"
+        
+        // Conditionally adjust build if contrast profile present
+        // We need to use profile, and run ITs via verify phase
+        if (readFile('pom.xml').contains(contrast)) {
+          phase = "verify"
+          profiles += contrast
+        }
+         
+        sh """mvn -B -Dmaven.wagon.http.ssl.insecure=true 
+                  -s /maven-conf/settings.xml 
+                  -P ${profiles.join[',']}"
+                  -DappName=app ${phase}"""
       }
 
       stage("Process OpenShift Config") {
