@@ -34,7 +34,8 @@ objects:
                       script {
                         git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%"
                         def jenkinsPipeline = load 'src/org/clg/pipeline/initialize.groovy'
-                        jenkinsPipeline.start()
+                        def params = ['pipelineCodeGitUrl': '%%GIT_URL%%', 'pipelineCodeGitBranch': '%%GIT_BRANCH%%', 'gitSecret': "${BUILD_SECRET}"]
+                        jenkinsPipeline.start(params)
                       }
                     }
                   }
@@ -42,4 +43,11 @@ objects:
               }
         type: JenkinsPipeline
       triggers: []
+parameters:
+  - 
+    description: "Name of the secret for Git credentials."
+    displayName: "Build Secret"
+    name: BUILD_SECRET
+    required: true
+    value: git-secret
     
