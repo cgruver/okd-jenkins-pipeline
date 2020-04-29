@@ -4,7 +4,13 @@ def start(def params) {
 
   stage("Launch Maven Agent") {
     node("maven") {
-      git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}"
+      def namespace = openshift.withCluster() { openshift.withProject() { openshift.project() } }
+      try {
+        git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}", credentialsId: "${namespace}-${params.gitSecret}"
+      } catch (Exception e) {
+        sh "git config http.sslVerify false"
+        git url: "${params.pipelineCodeGitUrl}", branch: "${params.pipelineCodeGitBranch}", credentialsId: "${namespace}-${params.gitSecret}"
+      }
       build(params)
     }
   }

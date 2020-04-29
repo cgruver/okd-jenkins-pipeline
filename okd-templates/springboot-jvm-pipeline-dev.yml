@@ -71,7 +71,15 @@ objects:
                   stage("Initialize") {
                     steps {
                       script {
-                        git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%"
+                        def namespace = openshift.withCluster() { openshift.withProject() { openshift.project() } }
+                        
+                        // Kind of hokey, but this gets around our certs being internally signed
+                        try {
+                          git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%", credentialsId: "$namespace-${BUILD_SECRET}"
+                        } catch (Exception e) {
+                          sh "git config http.sslVerify false"
+                          git url: "%%GIT_URL%%", branch: "%%GIT_BRANCH%%", credentialsId: "$namespace-${BUILD_SECRET}"
+                        }                   
                         def jenkinsPipeline = load 'src/org/clg/pipeline/build.groovy'
                         def params = ['pipelineCodeGitUrl': '%%GIT_URL%%', 'pipelineCodeGitBranch': '%%GIT_BRANCH%%', 'appName' : "${APP_NAME}", 'gitBranch': "${GIT_BRANCH}", 'gitUrl': "${GIT_REPOSITORY}", 'gitSecret': "${BUILD_SECRET}"]
                         jenkinsPipeline.start(params)
@@ -322,4 +330,4 @@ parameters:
     displayName: "External Container Registry"
     name: CONTAINER_REGISTRY
     required: true
-    value: "docker-repo.build-repo.somwhere.com"
+    value: "%%EXTERNAL_CONTAINER_REGISTRY%%"
