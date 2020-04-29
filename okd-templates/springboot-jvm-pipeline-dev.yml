@@ -143,9 +143,9 @@ objects:
           - args:
               - '-c'
               - >-
-                csplit -z -f crt- $ca_bundle '/-----BEGIN CERTIFICATE-----/' '{*}'
+                cd /tmp && csplit -z -f crt- $ca_bundle '/-----BEGIN CERTIFICATE-----/' '{*}'
                 && for file in crt-*; do keytool -import -noprompt -keystore
-                $truststore_jks -file $file -storepass changeit -alias
+                $truststore_jks -file $file -storepass $password -alias
                 service-$file; done
             command:
               - /bin/bash
