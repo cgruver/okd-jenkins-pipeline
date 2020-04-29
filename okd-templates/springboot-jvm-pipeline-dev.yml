@@ -286,9 +286,12 @@ objects:
           name: ${CONTAINER_REGISTRY}/cicd/${APP_NAME}:deploy
       runPolicy: Serial
       source:
-        type: None
+        type: Dockerfile
+        dockerfile: |-
+          FROM basic-ocp-app:latest
+          ENTRYPOINT [ "/deployments/run-java.sh" ]
       strategy:
-        sourceStrategy:
+        dockerStrategy:
           forcePull: true
           from:
             kind: ImageStreamTag
