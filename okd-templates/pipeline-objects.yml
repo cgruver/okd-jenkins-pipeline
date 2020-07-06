@@ -82,10 +82,14 @@ objects:
                   volumeMounts:
                     - mountPath: /maven-conf
                       name: maven-settings-xml
+                    - mountPath: /home/build
+                      name: maven-home
               volumes:
                 - name: maven-settings-xml
                   configMap:
                     name: maven-settings-xml
+                - name: maven-home
+                  emptyDir: {}
           </yaml>
         </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
 - apiVersion: v1
